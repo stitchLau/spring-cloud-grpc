@@ -1,8 +1,8 @@
 package com.example.server;
 
-import com.example.server.proto.Friend;
-import com.example.server.proto.Person;
 import com.google.protobuf.Timestamp;
+import com.lau.grpc.Friend;
+import com.lau.grpc.Person;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

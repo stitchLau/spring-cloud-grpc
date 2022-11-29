@@ -1,2 +1,12 @@
 server:
-  port: 8000
+  port: 9000
+spring:
+  application:
+    name: grpc-server
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+
+grpc:
+  server:
+    port: 0

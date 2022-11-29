@@ -1,0 +1,14 @@
+server:
+  port: 8000
+spring:
+  application:
+    name: grpc-client
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+
+grpc:
+  client:
+    grpc-server:
+      address: discovery:///grpc-server
+      negotiation-type: tls
