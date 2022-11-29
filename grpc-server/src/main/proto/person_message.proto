@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option java_package = "com.lau.proto";
+option java_multiple_files = true;
+option java_generate_equals_and_hash = true;
+option java_outer_classname = "PersonMessage";
+option java_generic_services = true;
+option java_string_check_utf8 = false;
+
+import "google/protobuf/timestamp.proto";
+
+message Person {
+  string name = 1;
+  uint32 age = 2;
+  bool isAdult = 3;
+  oneof height {
+    uint32 height_cm = 4;
+    double height_m = 5;
+  }
+  Color color = 6;
+  Gender gender = 7;
+  repeated string hobbies = 8;
+  map<string, Friend> friends = 9;
+  google.protobuf.Timestamp birthday = 10;
+
+  enum Color {
+    UNKNOWN = 0;
+    YELLOW = 1;
+    WHITE = 2;
+    BLACK = 3;
+  }
+
+  enum Gender {
+    SECRET = 0;
+    FEMALE = 1;
+    MALE = 2;
+  }
+
+}
+
+message Friend {
+  string name = 1;
+  uint32 age = 2;
+  google.protobuf.Timestamp birthday = 3;
+}

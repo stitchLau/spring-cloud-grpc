@@ -1,0 +1,118 @@
+// 定义当前.proto文件使用的ProtoBuf语法版本，有proto2和proto3可选，现在我们推荐使用proto3，因为proto3中新增了一些新的特性，以及简化了一些语法
+syntax = "proto3";
+
+// .proto文件的包名，用来防止存在.proto文件的目录下多个.proto文件中定义了相同名称的message或者enum等
+// 如果存在以上提交的情况，会导致编译失败，但该关键字不会对编译后的产物有影响
+package protobuf;
+
+/*
+ProtoBuf的选项，几乎都是以编程语言名称开头，如java_xxx,go_xxx,cc_xxx,csharp_
+*/
+// 生成的Java类的package
+option java_package = "com.lau.proto";
+// 是否生成多个.java文件，只有在同一个.proto文件中存在多个顶级message块时才有效
+option java_multiple_files = true;
+// 是否生成/重写Object类的equals()和hashCode()方法
+option java_generate_equals_and_hash = true;
+// 生成的Java类类名（不能与message同名，否则使用protoc进行编译时会报错，提示已存在相同文件名的输出文件，因为protoc会默认为message生成一个文件）
+option java_outer_classname = "PersonMessage";
+// 是否生成Service，如果为false，则在该proto文件中即使定义了service快，最终执行protoc也不会生成Service代码
+option java_generic_services = true;
+// 暂不清楚该选项的作用
+option java_string_check_utf8 = false;
+
+// ProtoBuf中内置的几个 引用/复杂 数据类型
+import "google/protobuf/any.proto";
+import "google/protobuf/api.proto";
+import "google/protobuf/descriptor.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/source_context.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/type.proto";
+import "google/protobuf/wrappers.proto";
+
+// message关键字定义一个数据结构，其内定义了该数据结构内包含哪些字段，各个字段的名称、数据结构等
+message Person {
+  /*
+  《基本数据类型》
+  ProtoBuf内置了14中基本数据类型：https://developers.google.com/protocol-buffers/docs/proto#scalar
+  浮点类型：float,double
+  整数型：int32,int64,uint32,uint64,sint32,sint64,fixed64,fixed64,sfixed32,sfixed64
+  布尔类型：bool
+  字符类型：bytes,string
+
+  其中整数型可以分为5组：
+  int：可变长度、有符号（对负数编码效率较低，如果存在负数推荐使用sint）
+  uint：可变长度、无符号
+  sint：可变长度、有符号（对负数编码效率更高）
+  fixed：固定长度（fixed32永远占用4个字节，fixed64永远占用8个字节），如果通常大于2^28(fixed32)或者2^56(fixed64)，则比uint系列性能更好
+  sfixed：固定长度、有符号
+   */
+
+  /*
+  《字段修饰符》
+  在ProtoBuf语法中，对于消息的字段提供了几个字段规则修饰关键字：singular,required,optional,oneof,repeated,map
+  需要注意的是，在proto3语法中required修饰符被删除了，按照官方文档的说法，即使在proto2语法中，该修饰符支持，但依然极力不推荐使用，因为其与ProtoBuf的“多个.proto文件版本之间向上向下向前向后兼容”理念相悖。
+  singular：0个或1个，最多一个
+  optional：可有可无，与singular类似，区别在于其在有值和无值的情况下，是否会解析到最终结果中
+  oneof：给定一组可选字段，最终生效的仅为一个，如一组字段中多个字段均设置值，则只有最后设置的字段的值有效
+  repeated：标识可以设置多个值的字段，通常用来标识数组、集合
+  map：一个用法上与前面几个修饰符不太一样的键-值类型
+
+  在proto3中，如字段不显式的指定字段修饰符，则默认使用singular。
+
+  补充：还有一个reserved修饰符，用来标识需保留的字段名、字段序号或者字段序号范围
+  */
+
+  /*
+  《字段序号》
+  字段序号在ProtoBuf中是比字段名还重要的元素，ProtoBuf以字段序号来进行序列化、反序列化、传输等。
+  字段序号可以是满足以下规则的任意整数：
+    * 序号值范围：1~536,870,911(2^29-1)
+    * 19,000~19999被ProtoBuf保留不可使用
+    * 1~15占用1个字节
+    * 16~2047占用2个字节
+    * 可以无序
+    * 在相同级别的字段中必须唯一
+  */
+
+  string name = 1;
+  uint32 age = 2;
+  bool isAdult = 3;
+  oneof height {
+    uint32 height_cm = 4;
+    double height_m = 5;
+  }
+  Color color = 6;
+  Gender gender = 7;
+  // 集合
+  repeated string hobbies = 8;
+  map<string, Friend> friends = 9;
+  // 使用Google内置类型
+  google.protobuf.Timestamp birthday = 10;
+
+  enum Color {
+    UNKNOWN = 0;
+    YELLOW = 1;
+    WHITE = 2;
+    BLACK = 3;
+  }
+
+  enum Gender {
+    // 相同message内，不同的enum中不能存在相同的枚举值
+    // UNKNOWN = 0;
+    SECRET = 0;
+    FEMALE = 1;
+    MALE = 2;
+  }
+
+}
+
+message Friend {
+  string name = 1;
+  uint32 age = 2;
+  google.protobuf.Timestamp birthday = 3;
+}
